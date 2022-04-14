@@ -1,18 +1,12 @@
-import {
-	Card,
-	CardContent,
-	Typography,
-	CardActions,
-	Button,
-} from '@mui/material';
-import React from 'react';
+import {Card, CardContent, Typography} from '@mui/material';
+
 import {Post} from 'types/post';
 
-type IPostItemProps = {
+type PostItemPropsType = {
 	item: Post;
 };
 
-const PostItem = ({item}: IPostItemProps) => {
+const PostItem = ({item}: PostItemPropsType) => {
 	return (
 		<Card>
 			<CardContent>
@@ -20,8 +14,9 @@ const PostItem = ({item}: IPostItemProps) => {
 					{item.title}
 				</Typography>
 				<Typography variant="h5" component="div">
-					User id is {item.userId}
-					<br /> Post Id is {item.id}
+					Id Пользователя {item.userId}
+					<br />
+					Id поста {item.id}
 				</Typography>
 				<Typography variant="body2">{item.body}</Typography>
 			</CardContent>

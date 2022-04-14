@@ -3,6 +3,12 @@ import {Route} from 'react-router-dom';
 
 const Home = loadable(() => import('./pages'));
 
-const homeRoutes = [<Route key="Home" path="/" element={<Home />} />];
+export enum HomeRoutesEnum {
+	MAIN = '/',
+}
+
+const homeRoutes = [
+	<Route key="Home" path={HomeRoutesEnum.MAIN} element={<Home />} />,
+];
 
 export default homeRoutes;

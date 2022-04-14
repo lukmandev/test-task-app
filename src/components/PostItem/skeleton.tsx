@@ -1,11 +1,4 @@
-import {
-	Card,
-	CardContent,
-	Typography,
-	CardActions,
-	Button,
-	Skeleton,
-} from '@mui/material';
+import {Card, CardContent, Skeleton} from '@mui/material';
 
 const PostItemSkeleton = () => {
 	return (

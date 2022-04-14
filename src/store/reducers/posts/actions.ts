@@ -1,9 +1,9 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
 import MockAdapter from 'axios-mock-adapter';
 import queryString from 'query-string';
+import {uniqBy} from 'lodash';
 
 import api from '@http/api';
-
 import posts from '@data/posts.json';
 import {Post} from 'types/post';
 import {
@@ -47,9 +47,10 @@ export const fetchPosts = createAsyncThunk(
 			const {data} = await api.get(`/posts?${query}`);
 			await sleep(sleepTime);
 			dispatch(setTotalCount(data.totalCount));
-			dispatch(setPosts([...postState.posts, ...data.posts]));
+			const uniqueArray = uniqBy([...postState.posts, ...data.posts], 'id');
+			dispatch(setPosts(uniqueArray));
 		} catch (e) {
-			dispatch(setPostsError('Some Error Happened'));
+			dispatch(setPostsError('Произошла какая то ошибка'));
 		} finally {
 			dispatch(setPostsLoaded(true));
 		}

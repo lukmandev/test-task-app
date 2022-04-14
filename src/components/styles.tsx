@@ -1,3 +1,4 @@
+import {memo} from 'react';
 import {makeStyles} from '@mui/styles';
 
 const useStyles = makeStyles({
@@ -20,4 +21,4 @@ const GlobalStyles = () => {
 	return null;
 };
 
-export default GlobalStyles;
+export default memo(GlobalStyles);

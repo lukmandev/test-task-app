@@ -16,7 +16,7 @@ const initialState: sliceType = {
 };
 
 const postsSlice = createSlice({
-	name: 'auth',
+	name: 'posts',
 	initialState,
 	reducers: {
 		setPostsLoaded(state, action: PayloadAction<sliceType['postsLoaded']>) {
