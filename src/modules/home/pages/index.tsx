@@ -1,14 +1,19 @@
-import {Container, Grid, TextField, Typography} from '@mui/material';
+import {Box, Container, Grid, TextField, Typography} from '@mui/material';
 import {ChangeEvent, useEffect, useMemo} from 'react';
+import {makeStyles} from '@mui/styles';
+import {useInView} from 'react-cool-inview';
+import {useState} from 'react';
 
 import {fetchPosts} from '@store/reducers/posts/actions';
 import {selectPostState} from '@store/reducers/posts/selectors';
 import PostItem from '@components/PostItem';
 import {useAppDispatch, useAppSelector} from '@hooks/redux';
-import {makeStyles} from '@mui/styles';
-import {useInView} from 'react-cool-inview';
-import {useState} from 'react';
 import PostItemSkeleton from '@components/PostItem/skeleton';
+import {
+	setPosts,
+	setPostsError,
+	setPostsLoaded,
+} from '@store/reducers/posts/slice';
 
 const useStyles = makeStyles({
 	container: {
@@ -16,6 +21,13 @@ const useStyles = makeStyles({
 	},
 	sleepTimeTextField: {
 		marginBottom: 20,
+	},
+	noMorePostWrapper: {
+		padding: '20px 0',
+		width: '100%',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 });
 
@@ -26,19 +38,31 @@ const Home = () => {
 	const [limit] = useState(9);
 	const [offset, setOffset] = useState(0);
 	const [sleepTime, setSleepTime] = useState(1000);
-	const isMoreThanTotalCount = offset + limit > postState.totalCount;
+	const isMoreThanTotalCount = useMemo(
+		() => offset + limit > postState.totalCount,
+		[offset, postState.totalCount]
+	);
 
 	const {observe, inView} = useInView({
 		threshold: 0.25,
 	});
 
 	useEffect(() => {
+		return () => {
+			dispatch(setPostsLoaded(false));
+			dispatch(setPostsError(null));
+			dispatch(setPosts([]));
+		};
+	}, []);
+
+	useEffect(() => {
 		dispatch(fetchPosts({limit, offset, sleepTime}));
 	}, [limit, offset]);
 
 	useEffect(() => {
-		const isLoadedAndNoError = postState.postsLoaded && !postState.postsError;
-		if (inView && isLoadedAndNoError && !isMoreThanTotalCount) {
+		const isLoadedAndHasNoError =
+			postState.postsLoaded && !postState.postsError;
+		if (inView && isLoadedAndHasNoError && !isMoreThanTotalCount) {
 			setOffset((prev) => prev + limit);
 		}
 	}, [inView, postState.postsLoaded]);
@@ -63,7 +87,7 @@ const Home = () => {
 			if (postState.posts.length) {
 				return postsOut;
 			}
-			return <Typography>There no posts</Typography>;
+			return <Typography>Нету постов</Typography>;
 		}
 		const skeletons = Array(limit)
 			.fill(0)
@@ -75,10 +99,24 @@ const Home = () => {
 		return [...postsOut, skeletons];
 	}, [postState]);
 
+	const outNoMorePostInfo = useMemo(() => {
+		if (
+			postState.postsLoaded &&
+			!postState.postsError &&
+			isMoreThanTotalCount
+		) {
+			return (
+				<Box className={styles.noMorePostWrapper}>
+					<Typography fontSize={30}>Больше нету постов</Typography>
+				</Box>
+			);
+		}
+	}, [postState, isMoreThanTotalCount]);
+
 	return (
 		<Container className={styles.container}>
 			<TextField
-				label="Sleep Time in MS"
+				label="Задержка запроса в миллисекундах"
 				type="number"
 				value={sleepTime}
 				onChange={handleSleepTimeChange}
@@ -87,7 +125,8 @@ const Home = () => {
 			<Grid container spacing={2}>
 				{outPosts}
 			</Grid>
-			<div ref={observe} />
+			<div ref={observe} data-testid="main-page" />
+			{outNoMorePostInfo}
 		</Container>
 	);
 };
